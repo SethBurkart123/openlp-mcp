@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> Please note, currently I haven't gotten it to work outside of building the plugin bundled with Openlp. Check out the progress [here](https://gitlab.com/openlp/openlp/-/issues/2072).
+
 # OpenLP MCP Plugin
 
 A powerful OpenLP plugin that provides Model Context Protocol (MCP) server functionality, allowing AI models to fully control OpenLP including automated service creation.
