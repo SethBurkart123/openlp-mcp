@@ -2,4 +2,4 @@ mcp
 mcp-plugin.zip
 
 __pycache__/
-plug
+.DS_Store
