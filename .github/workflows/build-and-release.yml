@@ -1,0 +1,85 @@
+name: Build and Release OpenLP MCP Plugin
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v2
+    
+    - name: Create virtual environment
+      run: uv venv
+    
+    - name: Install fastmcp to vendor directory
+      run: |
+        mkdir -p mcp/vendor
+        uv pip install fastmcp --target mcp/vendor --system
+    
+    - name: Copy plugin files
+      run: |
+        cp -r src/* mcp/
+        # Ensure vendor path loading is in __init__.py
+        echo -e "\nimport os, sys\nsys.path.insert(0, os.path.join(os.path.dirname(__file__), 'vendor'))" >> mcp/__init__.py
+    
+    - name: Create plugin ZIP
+      run: |
+        zip -r mcp-plugin.zip mcp/
+        
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: mcp-plugin-zip
+        path: mcp-plugin.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: mcp-plugin-zip
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: mcp-plugin.zip
+        generate_release_notes: true
+        body: |
+          ## OpenLP MCP Plugin Release
+          
+          This release contains the OpenLP MCP (Model Context Protocol) plugin with all dependencies bundled.
+          
+          ### Installation
+          1. Download the `mcp-plugin.zip` file
+          2. Extract it to get the `mcp` folder
+          3. Copy the `mcp` folder to your OpenLP plugins directory:
+             - **Windows**: `C:\Program Files\OpenLP\plugins\`
+             - **Linux**: `/usr/share/openlp/plugins/` or `~/.local/share/openlp/plugins/`
+             - **macOS**: Right-click OpenLP.app → Show Package Contents → `Contents/MacOS/plugins/`
+          4. Restart OpenLP and enable the plugin in Settings → Manage Plugins
+          
+          ### Features
+          - Complete service management via AI models
+          - Media support with automatic file type detection
+          - PowerPoint/PDF conversion capabilities
+          - Live slide control and theme management
+          - URL download support for remote files
+          
+          No additional Python packages need to be installed - everything is bundled!
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
