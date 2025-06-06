@@ -20,4 +20,8 @@
 ##########################################################################
 """
 The :mod:`~openlp.plugins.mcp` module contains all the code for the MCP plugin.
-""" 
+"""
+
+from .mcpplugin import MCPPlugin
+
+__all__ = ['MCPPlugin'] 

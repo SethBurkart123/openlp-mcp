@@ -23,6 +23,10 @@ The :mod:`~openlp.plugins.mcp.mcpplugin` module contains the Plugin class
 for the MCP (Model Context Protocol) plugin.
 """
 
+import os, sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
+
 import logging
 import threading
 
